@@ -20,6 +20,7 @@ MTE(y, X, beta.ini, t, p, intercept = FALSE)
 \item{intercept}{logical input that indicates if intercept needs to be estimated. Default is FALSE.}
 }
 \value{
+Returns estimates from MTE method.
 \item{beta}{the regression coefficient estimates}
 \item{fitted.value}{predicted response}
 \item{t}{the optimal tangent point through data-driven method}

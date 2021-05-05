@@ -10,7 +10,7 @@ MTElasso(
   beta.ini,
   p,
   lambda,
-  adaptive = T,
+  adaptive = TRUE,
   t,
   method = "MTE",
   intercept = FALSE,
