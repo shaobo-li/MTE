@@ -1,6 +1,6 @@
 Package: MTE
 Type: Package
-Title: Maximum Tangent Likelihood and Other Robust Estimation for High-Dimensional Regression
+Title: Maximum Tangent Likelihood Estimation for Linear Regression
 Version: 1.0.1
 Authors@R: 
   c(person("Shaobo", "Li", email="shaobo.li@ku.edu", role=c("aut", "cre")),

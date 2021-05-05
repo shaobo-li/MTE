@@ -25,4 +25,4 @@ beta.est=output.MTELasso$beta
 
 ## References
 
-Qin, Y., Li, S., Li, Y., & Yu, Y. (2017). Penalized maximum tangent likelihood estimation and robust variable selection. arXiv preprint [https://arxiv.org/pdf/1708.05439.pdf](arXiv:1708.05439).
+Qin, Y., Li, S., Li, Y., & Yu, Y. (2017). Penalized maximum tangent likelihood estimation and robust variable selection. [arXiv preprint](https://arxiv.org/pdf/1708.05439.pdf).
