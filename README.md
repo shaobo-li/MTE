@@ -6,13 +6,13 @@ The package provides several robust estimation methods for linear regression und
 
 ## Installation
 
-```{r}
+``` r 
 devtools::install_github("shaobo-li/MTE")
 ```
 
 ## Example
 
-```{r}
+``` r
 library(MTE)
 n=200; d=50
 X=matrix(rnorm(n*d), nrow=n, ncol=d)
