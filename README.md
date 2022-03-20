@@ -16,7 +16,7 @@ devtools::install_github("shaobo-li/MTE")
 library(MTE)
 n=200; d=500
 X=matrix(rnorm(n*d), nrow=n, ncol=d)
-beta=c(rep(2,6), rep(0, 44))
+beta=c(rep(2,6), rep(0, d-6))
 y=X%*%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
 output.MTELasso=MTElasso(X=X, y=y, p=2, t=0.05, method="MTE")
 beta.est=output.MTELasso$beta
