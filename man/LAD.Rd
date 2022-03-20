@@ -4,12 +4,12 @@
 \alias{LAD}
 \title{Least Absolute Deviance Estimator for Linear Regression}
 \usage{
-LAD(y, X, intercept = FALSE)
+LAD(X, y, intercept = FALSE)
 }
 \arguments{
-\item{y}{reponse vector}
-
 \item{X}{design matrix}
+
+\item{y}{reponse vector}
 
 \item{intercept}{logical input that indicates if intercept needs to be estimated. Default is FALSE.}
 }
@@ -26,7 +26,7 @@ X=matrix(rnorm(n*d), nrow=n, ncol=d)
 beta=c(1, -1, 2, -2)
 y=-2+X\%*\%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
 beta.ls=lm(y~X)$coeff
-beta.MTE=LAD(y,X,intercept=TRUE)
-cbind(c(-2,beta), beta.ls, beta.MTE)
+beta.LAD=LAD(X,y,intercept=TRUE)
+cbind(c(-2,beta), beta.ls, beta.LAD)
 
 }

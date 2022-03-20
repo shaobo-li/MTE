@@ -5,8 +5,8 @@
 \title{MTE-Lasso estimator}
 \usage{
 MTElasso(
-  y,
   X,
+  y,
   beta.ini,
   p,
   lambda,
@@ -14,15 +14,17 @@ MTElasso(
   t,
   method = "MTE",
   intercept = FALSE,
+  penalty.factor = rep(1, ncol(X)),
   ...
 )
 }
 \arguments{
-\item{y}{response vector.}
-
 \item{X}{design matrix, standardization is recommended.}
 
-\item{beta.ini}{initial estimates of beta. Using unpenalized MTE or LAD is recommended under high-dimensional setting.}
+\item{y}{response vector.}
+
+\item{beta.ini}{initial estimates of beta. If not specified, LADLasso estimates from \code{rq.lasso.fit()} in \code{rqPen}
+is used. Otherwise, robust estimators are strongly recommended.}
 
 \item{p}{Taylor expansion order.}
 
@@ -36,11 +38,13 @@ MTElasso(
 
 \item{intercept}{logical input that indicates if intercept needs to be estimated. Default is FALSE.}
 
-\item{...}{other arguments that are used in function "adalasso()" that is called form parcor package.}
+\item{penalty.factor}{can be used to force nonzero coefficients. Default is rep(1, ncol(X)) as in glmnet.}
+
+\item{...}{other arguments that are used in \code{glmnet}.}
 }
 \value{
 It returns a sparse vector of estimates of linear regression. It has two types of penalty, LASSO and AdaLasso.
-Coordinate descent algorithm is used for interatively updating coefficients.
+Coordinate descent algorithm is used for iteratively updating coefficients.
 \item{beta}{sparse regression coefficient}
 \item{fitted}{predicted response}
 \item{t}{optimal tangent point}
@@ -55,8 +59,7 @@ n=200; d=50
 X=matrix(rnorm(n*d), nrow=n, ncol=d)
 beta=c(rep(2,6), rep(0, 44))
 y=X\%*\%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
-beta0=MTE(y, X, rep(0,50), 0.1, 2)$beta
-output.MTELasso=MTElasso(y,X, p=2, beta.ini=beta0, t=seq(0, 0.1, 0.01), method="MTE")
+output.MTELasso=MTElasso(X, y, p=2, t=0.05, method="MTE")
 beta.est=output.MTELasso$beta
 
 }

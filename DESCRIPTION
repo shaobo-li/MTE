@@ -1,7 +1,8 @@
 Package: MTE
 Type: Package
 Title: Maximum Tangent Likelihood Estimation for Linear Regression
-Version: 1.0.1
+Version: 1.0.2
+Date: 2022-03-20
 Authors@R: 
   c(person("Shaobo", "Li", email="shaobo.li@ku.edu", role=c("aut", "cre")),
     person("Yichen", "Qin", email="qinyn@ucmail.uc.edu", role=c("aut")))
@@ -15,4 +16,4 @@ URL: GitHub: https://github.com/shaobo-li/MTE
 Depends: R (>= 3.1.0)
 License: GPL-3
 RoxygenNote: 7.1.1
-Imports: stats, quantreg, glmnet
+Imports: stats, quantreg, glmnet, rqPen

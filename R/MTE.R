@@ -214,17 +214,19 @@ MTE<- function(y, X, beta.ini, t, p, intercept=FALSE){
 #'
 #' @param y response vector.
 #' @param X design matrix, standardization is recommended.
-#' @param beta.ini initial estimates of beta. Using unpenalized MTE or LAD is recommended under high-dimensional setting.
+#' @param beta.ini initial estimates of beta. If not specified, LADLasso estimates from \code{rq.lasso.fit()} in \code{rqPen}
+#' is used. Otherwise, robust estimators are strongly recommended.
 #' @param p Taylor expansion order.
 #' @param lambda regularization parameter for LASSO, but not necessary if "adaptive=TRUE".
 #' @param adaptive logic argument to indicate if Adaptive-Lasso is used. Default is TRUE.
 #' @param method it can be ("MTE", "MLE"). The default is MTE. If MLE, classical LASSO is used.
 #' @param t the tangent point. You may specify a sequence of values, so that the function automatically select the optimal one.
 #' @param intercept logical input that indicates if intercept needs to be estimated. Default is FALSE.
-#' @param ... other arguments that are used in function "adalasso()" that is called form parcor package.
+#' @param penalty.factor can be used to force nonzero coefficients. Default is rep(1, ncol(X)) as in glmnet.
+#' @param ... other arguments that are used in \code{glmnet}.
 #'
 #' @return It returns a sparse vector of estimates of linear regression. It has two types of penalty, LASSO and AdaLasso.
-#' Coordinate descent algorithm is used for interatively updating coefficients.
+#' Coordinate descent algorithm is used for iteratively updating coefficients.
 #' \item{beta}{sparse regression coefficient}
 #' \item{fitted}{predicted response}
 #' \item{t}{optimal tangent point}
@@ -237,14 +239,16 @@ MTE<- function(y, X, beta.ini, t, p, intercept=FALSE){
 #' X=matrix(rnorm(n*d), nrow=n, ncol=d)
 #' beta=c(rep(2,6), rep(0, 44))
 #' y=X%*%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
-#' beta0=MTE(y, X, rep(0,50), 0.1, 2)$beta
-#' output.MTELasso=MTElasso(y,X, p=2, beta.ini=beta0, t=seq(0, 0.1, 0.01), method="MTE")
+#' output.MTELasso=MTElasso(X, y, p=2, t=0.05, method="MTE")
 #' beta.est=output.MTELasso$beta
 #'
 #' @import glmnet
-MTElasso<- function(y, X, beta.ini, p, lambda, adaptive=TRUE, t, method="MTE", intercept=FALSE, ...){
+MTElasso<- function(X, y, beta.ini, p, lambda, adaptive=TRUE, t, method="MTE", intercept=FALSE, penalty.factor=rep(1,ncol(X)), ...){
 
-  if(intercept==TRUE) X=cbind(1, X)
+  if(intercept==TRUE){
+    X=cbind(1, X)
+    penalty.factor <- c(0, penalty.factor)
+  }
 
   if(method=="MTE"){
     if(missing(t)){
@@ -264,7 +268,8 @@ MTElasso<- function(y, X, beta.ini, p, lambda, adaptive=TRUE, t, method="MTE", i
     d<- dim(X)[2]
 
     if(missing(beta.ini)){
-      stop("Error: must provide initial estimates")
+      rqfit <- rqPen::rq.lasso.fit(x=X, y=as.vector(y), lambda = 0.1, intercept = intercept)
+      beta.ini <- rqfit$coefficients
     }
 
     if(missing(p)) p=1
@@ -323,18 +328,18 @@ MTElasso<- function(y, X, beta.ini, p, lambda, adaptive=TRUE, t, method="MTE", i
 
 
       ## penalty weight - lambda
-      if(adaptive==F & missing(lambda)){
+      if(adaptive==FALSE & missing(lambda)){
         stop("Error: If adaptive=FALSE, lambda must be provided!")
       }
 
-      if(adaptive==F){
-        bic.lambda=lambda
+      if(adaptive==FALSE){
+        bic.lambda=lambda*penalty.factor
       }else{
         if(missing(lambda)){
-          bic.lambda<- log(n)/(n*(abs(beta0))+1e-7)
+          bic.lambda<- log(n)/(n*(abs(beta0))+1e-7)*penalty.factor
         }else{
           #bic.lambda<- lambda*log(n)/(n*(abs(beta0))+1e-7)
-          bic.lambda<- lambda/(abs(beta0)+1e-7)
+          bic.lambda<- lambda/(abs(beta0)+1e-7)*penalty.factor
         }
       }
 
@@ -373,6 +378,7 @@ MTElasso<- function(y, X, beta.ini, p, lambda, adaptive=TRUE, t, method="MTE", i
       beta1<- beta11[id]
       #print(beta1)
       X1<- X0[,id]
+      penalty.factor <- penalty.factor[id]
 
       delta<- max(abs(beta11-beta0))
       #delta<- sum((beta11-beta0)^2)

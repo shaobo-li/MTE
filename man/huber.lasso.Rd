@@ -4,14 +4,24 @@
 \alias{huber.lasso}
 \title{Huber-Lasso estimator}
 \usage{
-huber.lasso(y, X, beta.ini, lambda, alpha = 2, adaptive = T, intercept = FALSE)
+huber.lasso(
+  X,
+  y,
+  beta.ini,
+  lambda,
+  alpha = 2,
+  adaptive = TRUE,
+  intercept = FALSE,
+  penalty.factor = rep(1, ncol(X))
+)
 }
 \arguments{
-\item{y}{response vector.}
-
 \item{X}{design matrix, standardization is recommended.}
 
-\item{beta.ini}{initial estimates of beta. Using unpenalized Huber or LAD is recommended under high-dimensional setting.}
+\item{y}{response vector.}
+
+\item{beta.ini}{initial estimates of beta. If not specified, LADLasso estimates from \code{rq.lasso.fit()} in \code{rqPen}
+is used. Otherwise, robust estimators are strongly recommended.}
 
 \item{lambda}{regularization parameter of Lasso or adaptive Lasso (if adaptive=TRUE).}
 
@@ -20,6 +30,8 @@ huber.lasso(y, X, beta.ini, lambda, alpha = 2, adaptive = T, intercept = FALSE)
 \item{adaptive}{logical input that indicates if adaptive Lasso is used. Default is TRUE.}
 
 \item{intercept}{logical input that indicates if intercept needs to be estimated. Default is FALSE.}
+
+\item{penalty.factor}{can be used to force nonzero coefficients. Default is rep(1, ncol(X)) as in glmnet.}
 }
 \value{
 \item{beta}{the regression coefficient estimates.}
@@ -36,7 +48,7 @@ n=200; d=50
 X=matrix(rnorm(n*d), nrow=n, ncol=d)
 beta=c(rep(2,6), rep(0, 44))
 y=X\%*\%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
-output.HuberLasso=huber.lasso(y,X, beta.ini=LAD(y, X), lambda=0.2, adaptive=TRUE)
+output.HuberLasso=huber.lasso(X,y, adaptive=TRUE)
 beta.est=output.HuberLasso$beta
 
 }

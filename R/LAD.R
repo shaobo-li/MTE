@@ -15,10 +15,10 @@
 #' beta=c(1, -1, 2, -2)
 #' y=-2+X%*%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
 #' beta.ls=lm(y~X)$coeff
-#' beta.MTE=LAD(y,X,intercept=TRUE)
-#' cbind(c(-2,beta), beta.ls, beta.MTE)
+#' beta.LAD=LAD(X,y,intercept=TRUE)
+#' cbind(c(-2,beta), beta.ls, beta.LAD)
 #'
-LAD<- function(y, X, intercept=FALSE){
+LAD<- function(X, y, intercept=FALSE){
   if(intercept==TRUE) X=cbind(1, X)
   beta0=rep(0, ncol(X))
   delta<- 2
@@ -60,6 +60,7 @@ LAD<- function(y, X, intercept=FALSE){
 #' @param lambda regularization parameter of Lasso or adaptive Lasso (if adaptive=TRUE).
 #' @param adaptive logical input that indicates if adaptive Lasso is used. Default is TRUE.
 #' @param intercept logical input that indicates if intercept needs to be estimated. Default is FALSE.
+#' @param penalty.factor can be used to force nonzero coefficients. Default is rep(1, ncol(X)) as in glmnet.
 #'
 #' @return
 #' \item{beta}{the regression coefficient estimates.}
@@ -74,13 +75,16 @@ LAD<- function(y, X, intercept=FALSE){
 #' X=matrix(rnorm(n*d), nrow=n, ncol=d)
 #' beta=c(rep(2,6), rep(0, 44))
 #' y=X%*%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
-#' output.LADLasso=LADlasso(y,X, beta.ini=LAD(y, X), lambda=0.2, adaptive=TRUE)
+#' output.LADLasso=LADlasso(X, y, beta.ini=LAD(X, y))
 #' beta.est=output.LADLasso$beta
 #'
 #' @import quantreg
-LADlasso<- function(y, X, beta.ini, lambda, adaptive=TRUE, intercept=FALSE){
+LADlasso<- function(X, y, beta.ini, lambda=NULL, adaptive=TRUE, intercept=FALSE, penalty.factor=rep(1,ncol(X))){
 
-  if(intercept==T) X=cbind(1, X)
+  if(intercept==TRUE){
+    X=cbind(1, X)
+    penalty.factor <- c(0, penalty.factor)
+  }
 
   n<- nrow(X)
   beta1<- beta.ini
@@ -100,18 +104,18 @@ LADlasso<- function(y, X, beta.ini, lambda, adaptive=TRUE, intercept=FALSE){
     d<- length(beta1)
 
     ## penalty weight - lambda
-    if(adaptive==F & missing(lambda)){
+    if(adaptive==FALSE & is.null(lambda)){
       stop("Error: If adaptive=FALSE, lambda must be provided!")
     }
 
-    if(adaptive==F){
-      bic.lambda=rep(lambda, d)
+    if(adaptive==FALSE){
+      bic.lambda=rep(lambda, d)*penalty.factor
     }else{
-      if(missing(lambda)){
-        bic.lambda<- log(n)/(n*(abs(beta0))+1e-7)
+      if(is.null(lambda)){
+        bic.lambda<- log(n)/(n*(abs(beta0))+1e-7)*penalty.factor
       }else{
         #bic.lambda<- lambda*log(n)/(n*(abs(beta0))+1e-7)
-        bic.lambda<- lambda/(abs(beta0)+1e-7)
+        bic.lambda<- lambda/(abs(beta0)+1e-7)*penalty.factor
       }
     }
 
@@ -125,6 +129,7 @@ LADlasso<- function(y, X, beta.ini, lambda, adaptive=TRUE, intercept=FALSE){
     id1<- id1[id]
     beta1<- beta11[id]
     X1<- X0[,id]
+    penalty.factor <- penalty.factor[id]
 
     delta<- max(abs(beta11-beta0))
 

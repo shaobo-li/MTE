@@ -4,12 +4,20 @@
 \alias{LADlasso}
 \title{LAD-Lasso for Linear Regression}
 \usage{
-LADlasso(y, X, beta.ini, lambda, adaptive = TRUE, intercept = FALSE)
+LADlasso(
+  X,
+  y,
+  beta.ini,
+  lambda = NULL,
+  adaptive = TRUE,
+  intercept = FALSE,
+  penalty.factor = rep(1, ncol(X))
+)
 }
 \arguments{
-\item{y}{reponse vector}
-
 \item{X}{design matrix, standardization is recommended.}
+
+\item{y}{reponse vector}
 
 \item{beta.ini}{initial estimates of beta. Using unpenalized LAD is recommended under high-dimensional setting.}
 
@@ -18,6 +26,8 @@ LADlasso(y, X, beta.ini, lambda, adaptive = TRUE, intercept = FALSE)
 \item{adaptive}{logical input that indicates if adaptive Lasso is used. Default is TRUE.}
 
 \item{intercept}{logical input that indicates if intercept needs to be estimated. Default is FALSE.}
+
+\item{penalty.factor}{can be used to force nonzero coefficients. Default is rep(1, ncol(X)) as in glmnet.}
 }
 \value{
 \item{beta}{the regression coefficient estimates.}
@@ -33,7 +43,7 @@ n=200; d=50
 X=matrix(rnorm(n*d), nrow=n, ncol=d)
 beta=c(rep(2,6), rep(0, 44))
 y=X\%*\%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
-output.LADLasso=LADlasso(y,X, beta.ini=LAD(y, X), lambda=0.2, adaptive=TRUE)
+output.LADLasso=LADlasso(X, y, beta.ini=LAD(X, y))
 beta.est=output.LADLasso$beta
 
 }

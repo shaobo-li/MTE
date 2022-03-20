@@ -104,11 +104,13 @@ huber.reg<- function(y, X, beta.ini, alpha, intercept=FALSE){
 #'
 #' @param y response vector.
 #' @param X design matrix, standardization is recommended.
-#' @param beta.ini initial estimates of beta. Using unpenalized Huber or LAD is recommended under high-dimensional setting.
+#' @param beta.ini initial estimates of beta. If not specified, LADLasso estimates from \code{rq.lasso.fit()} in \code{rqPen}
+#' is used. Otherwise, robust estimators are strongly recommended.
 #' @param lambda regularization parameter of Lasso or adaptive Lasso (if adaptive=TRUE).
 #' @param alpha 1/alpha is the huber tuning parameter. Larger alpha results in smaller portion of squared loss.
 #' @param adaptive logical input that indicates if adaptive Lasso is used. Default is TRUE.
 #' @param intercept logical input that indicates if intercept needs to be estimated. Default is FALSE.
+#' @param penalty.factor can be used to force nonzero coefficients. Default is rep(1, ncol(X)) as in glmnet.
 #'
 #' @return
 #' \item{beta}{the regression coefficient estimates.}
@@ -123,17 +125,18 @@ huber.reg<- function(y, X, beta.ini, alpha, intercept=FALSE){
 #' X=matrix(rnorm(n*d), nrow=n, ncol=d)
 #' beta=c(rep(2,6), rep(0, 44))
 #' y=X%*%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
-#' output.HuberLasso=huber.lasso(y,X, beta.ini=LAD(y, X), lambda=0.2, adaptive=TRUE)
+#' output.HuberLasso=huber.lasso(X,y, adaptive=TRUE)
 #' beta.est=output.HuberLasso$beta
 #'
-huber.lasso<- function(y, X, beta.ini, lambda, alpha =2, adaptive=T, intercept=FALSE){
+huber.lasso<- function(X, y, beta.ini, lambda, alpha =2, adaptive=TRUE, intercept=FALSE, penalty.factor=rep(1,ncol(X))){
 
   if(intercept==TRUE) X=cbind(1, X)
   n<- dim(X)[1]
   d<- dim(X)[2]
 
   if(missing(beta.ini)){
-    stop("Error: beta.ini must provide initial estimates")
+    rqfit <- rqPen::rq.lasso.fit(x=X, y=as.vector(y), lambda = 0.1, intercept = intercept)
+    beta.ini <- rqfit$coefficients
   }
 
   beta1<- beta.ini
@@ -154,17 +157,17 @@ huber.lasso<- function(y, X, beta.ini, lambda, alpha =2, adaptive=T, intercept=F
     e<- y-X0%*%beta0
 
     ## penalty weight - lambda
-    if(adaptive==F & missing(lambda)){
+    if(adaptive==FALSE & missing(lambda)){
       stop("Error: If adaptive=FALSE, lambda must be provided!")
     }
 
-    if(adaptive==F){
-      bic.lambda=lambda
+    if(adaptive==FALSE){
+      bic.lambda=lambda*penalty.factor
     }else{
       if(missing(lambda)){
-        bic.lambda<- log(n)/(n*(abs(beta0))+1e-7)
+        bic.lambda<- log(n)/(n*(abs(beta0))+1e-7)*penalty.factor
       }else{
-        bic.lambda<- lambda/((abs(beta0))+1e-7)
+        bic.lambda<- lambda/((abs(beta0))+1e-7)*penalty.factor
       }
     }
 
@@ -191,6 +194,7 @@ huber.lasso<- function(y, X, beta.ini, lambda, alpha =2, adaptive=T, intercept=F
     id1<- id1[id]
     beta1<- beta11[id]
     X1<- X0[,id]
+    penalty.factor <- penalty.factor[id]
 
     #delta<- sum((beta11-beta0)^2)
 
