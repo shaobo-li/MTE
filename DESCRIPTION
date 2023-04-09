@@ -1,8 +1,8 @@
 Package: MTE
 Type: Package
-Title: Maximum Tangent Likelihood Estimation for Linear Regression
-Version: 1.0.2
-Date: 2022-03-20
+Title: Maximum Tangent Likelihood Estimation for Robust Linear Regression and Variable Selection
+Version: 1.2
+Date: 2022-04-08
 Authors@R: 
   c(person("Shaobo", "Li", email="shaobo.li@ku.edu", role=c("aut", "cre")),
     person("Yichen", "Qin", email="qinyn@ucmail.uc.edu", role=c("aut")))

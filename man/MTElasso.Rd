@@ -8,12 +8,11 @@ MTElasso(
   X,
   y,
   beta.ini,
-  p,
-  lambda,
+  p = 2,
+  lambda = NULL,
   adaptive = TRUE,
-  t,
-  method = "MTE",
-  intercept = FALSE,
+  t = 0.01,
+  intercept = TRUE,
   penalty.factor = rep(1, ncol(X)),
   ...
 )
@@ -34,8 +33,6 @@ is used. Otherwise, robust estimators are strongly recommended.}
 
 \item{t}{the tangent point. You may specify a sequence of values, so that the function automatically select the optimal one.}
 
-\item{method}{it can be ("MTE", "MLE"). The default is MTE. If MLE, classical LASSO is used.}
-
 \item{intercept}{logical input that indicates if intercept needs to be estimated. Default is FALSE.}
 
 \item{penalty.factor}{can be used to force nonzero coefficients. Default is rep(1, ncol(X)) as in glmnet.}
@@ -55,11 +52,11 @@ It can deal with both fixed and high-dimensional settings.
 }
 \examples{
 set.seed(2017)
-n=200; d=50
+n=200; d=500
 X=matrix(rnorm(n*d), nrow=n, ncol=d)
-beta=c(rep(2,6), rep(0, 44))
+beta=c(rep(2,6), rep(0, d-6))
 y=X\%*\%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
-output.MTELasso=MTElasso(X, y, p=2, t=0.05, method="MTE")
+output.MTELasso=MTElasso(X, y, p=2, t=0.01)
 beta.est=output.MTELasso$beta
 
 }

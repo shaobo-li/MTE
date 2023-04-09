@@ -11,7 +11,7 @@ huber.lasso(
   lambda,
   alpha = 2,
   adaptive = TRUE,
-  intercept = FALSE,
+  intercept = TRUE,
   penalty.factor = rep(1, ncol(X))
 )
 }
@@ -44,11 +44,11 @@ Currently, the function does not support automatic selection of huber tuning par
 }
 \examples{
 set.seed(2017)
-n=200; d=50
+n=200; d=500
 X=matrix(rnorm(n*d), nrow=n, ncol=d)
-beta=c(rep(2,6), rep(0, 44))
+beta=c(rep(2,6), rep(0, d-6))
 y=X\%*\%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
-output.HuberLasso=huber.lasso(X,y, adaptive=TRUE)
+output.HuberLasso=huber.lasso(X,y)
 beta.est=output.HuberLasso$beta
 
 }

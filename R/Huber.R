@@ -102,6 +102,8 @@ huber.reg<- function(y, X, beta.ini, alpha, intercept=FALSE){
 #' This function is L1 penalized Huber estimator for linear regression under both fixed and high-dimensional settings.
 #' Currently, the function does not support automatic selection of huber tuning parameter.
 #'
+#' @import rqPen
+#'
 #' @param y response vector.
 #' @param X design matrix, standardization is recommended.
 #' @param beta.ini initial estimates of beta. If not specified, LADLasso estimates from \code{rq.lasso.fit()} in \code{rqPen}
@@ -121,23 +123,41 @@ huber.reg<- function(y, X, beta.ini, alpha, intercept=FALSE){
 #'
 #' @examples
 #' set.seed(2017)
-#' n=200; d=50
+#' n=200; d=500
 #' X=matrix(rnorm(n*d), nrow=n, ncol=d)
-#' beta=c(rep(2,6), rep(0, 44))
+#' beta=c(rep(2,6), rep(0, d-6))
 #' y=X%*%beta+c(rnorm(150), rnorm(30,10,10), rnorm(20,0,100))
-#' output.HuberLasso=huber.lasso(X,y, adaptive=TRUE)
+#' output.HuberLasso=huber.lasso(X,y)
 #' beta.est=output.HuberLasso$beta
 #'
-huber.lasso<- function(X, y, beta.ini, lambda, alpha =2, adaptive=TRUE, intercept=FALSE, penalty.factor=rep(1,ncol(X))){
-
-  if(intercept==TRUE) X=cbind(1, X)
-  n<- dim(X)[1]
-  d<- dim(X)[2]
+huber.lasso<- function(X, y, beta.ini, lambda, alpha =2, adaptive=TRUE, intercept=TRUE, penalty.factor=rep(1,ncol(X))){
 
   if(missing(beta.ini)){
-    rqfit <- rqPen::rq.lasso.fit(x=X, y=as.vector(y), lambda = 0.1, intercept = intercept)
-    beta.ini <- rqfit$coefficients
+    ### did not pass check due to :::
+    # if(intercept==TRUE){
+    #   rqfit <- rqPen:::rq.lasso.fit(x=X[,-1], y=as.vector(y), lambda = 0.1, intercept = intercept)
+    # }else{
+    #   rqfit <- rqPen:::rq.lasso.fit(x=X, y=as.vector(y), lambda = 0.1, intercept = intercept)
+    # }
+    # beta.ini <- rqfit$coefficients
+
+    rqfit <- rq.pen(x=X, y=as.vector(y), lambda = c(0.2, 0.1))
+    if(intercept==TRUE){
+      beta.ini <- rqfit$models[[1]]$coefficients[,2]
+    }else{
+      beta.ini <- rqfit$models[[1]]$coefficients[-1,2]
+    }
   }
+
+  if(intercept==TRUE){
+    penalty.factor <- c(0, penalty.factor)
+    X <- cbind(1, X)
+  }else{
+    penalty.factor <- penalty.factor
+  }
+
+  n<- dim(X)[1]
+  d<- dim(X)[2]
 
   beta1<- beta.ini
   X1<- X
@@ -204,6 +224,11 @@ huber.lasso<- function(X, y, beta.ini, lambda, alpha =2, adaptive=TRUE, intercep
   beta<- rep(0,ncol(X))
   beta[id1]<- beta1
 
+  if(intercept==TRUE){
+    names(beta) <- c("Intercept", paste("X", 1:(length(beta)-1), sep = ""))
+  }else{
+    names(beta) <- paste("X", 1:length(beta), sep = "")
+  }
   result<- list(step, beta, X%*%beta)
   names(result)<- c("iter.steps", "beta", "fitted")
   return(result)
