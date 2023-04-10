@@ -31,7 +31,7 @@ is used. Otherwise, robust estimators are strongly recommended.}
 
 \item{adaptive}{logic argument to indicate if Adaptive-Lasso is used. Default is TRUE.}
 
-\item{t}{the tangent point. You may specify a sequence of values, so that the function automatically select the optimal one.}
+\item{t}{the tuning parameter that controls for the tradeoff between robustness and efficiency. Default is t=0.01.}
 
 \item{intercept}{logical input that indicates if intercept needs to be estimated. Default is FALSE.}
 
@@ -44,7 +44,6 @@ It returns a sparse vector of estimates of linear regression. It has two types o
 Coordinate descent algorithm is used for iteratively updating coefficients.
 \item{beta}{sparse regression coefficient}
 \item{fitted}{predicted response}
-\item{t}{optimal tangent point}
 }
 \description{
 MTELasso is the penalized MTE for robust estimation and variable selection for linear regression.

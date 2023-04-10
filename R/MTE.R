@@ -219,7 +219,7 @@ MTE<- function(y, X, beta.ini, t, p, intercept=FALSE){
 #' @param p Taylor expansion order.
 #' @param lambda regularization parameter for LASSO, but not necessary if "adaptive=TRUE".
 #' @param adaptive logic argument to indicate if Adaptive-Lasso is used. Default is TRUE.
-#' @param t the tangent point. You may specify a sequence of values, so that the function automatically select the optimal one.
+#' @param t the tuning parameter that controls for the tradeoff between robustness and efficiency. Default is t=0.01.
 #' @param intercept logical input that indicates if intercept needs to be estimated. Default is FALSE.
 #' @param penalty.factor can be used to force nonzero coefficients. Default is rep(1, ncol(X)) as in glmnet.
 #' @param ... other arguments that are used in \code{glmnet}.
@@ -228,7 +228,6 @@ MTE<- function(y, X, beta.ini, t, p, intercept=FALSE){
 #' Coordinate descent algorithm is used for iteratively updating coefficients.
 #' \item{beta}{sparse regression coefficient}
 #' \item{fitted}{predicted response}
-#' \item{t}{optimal tangent point}
 #'
 #' @export
 #'
@@ -366,8 +365,8 @@ MTElasso<- function(X, y, beta.ini, p=2, lambda=NULL, adaptive=TRUE, t=0.01, int
   }else{
     names(beta) <- paste("X", 1:length(beta), sep = "")
   }
-  result<- list(beta, X%*%beta, t)
-  names(result)<- c("beta", "fitted", "t")
+  result<- list(beta, X%*%beta)
+  names(result)<- c("beta", "fitted")
   return(result)
 
 }# End of function
