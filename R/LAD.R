@@ -78,7 +78,6 @@ LAD<- function(X, y, intercept=FALSE){
 #' output.LADLasso=LADlasso(X, y, beta.ini=LAD(X, y))
 #' beta.est=output.LADLasso$beta
 #'
-#' @import quantreg
 LADlasso<- function(X, y, beta.ini, lambda=NULL, adaptive=TRUE, intercept=FALSE, penalty.factor=rep(1,ncol(X))){
 
   if(intercept==TRUE){
@@ -122,7 +121,7 @@ LADlasso<- function(X, y, beta.ini, lambda=NULL, adaptive=TRUE, intercept=FALSE,
     ystar<- c(y,rep(0,d))
     Xstar<- rbind(as.matrix(X0),diag(n*bic.lambda))
 
-    beta1<- rq(ystar~ Xstar -1, tau=0.5)$coeff
+    beta1<- quantreg::rq(ystar~ Xstar -1, tau=0.5)$coeff
 
     beta11<- beta1
     id<- which(abs(beta11)>1e-4)
